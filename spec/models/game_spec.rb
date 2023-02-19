@@ -130,34 +130,102 @@ RSpec.describe Game, type: :model do
     end
   end
 
-  context '#answer_current_question!' do
-    it 'test correct answer' do
-      expect(game_w_questions.answer_current_question!('d')).to eq(true)
-      expect(game_w_questions.status).to eq(:in_progress)
+  # describe '#answer_current_question!' do
+
+  #   it 'test correct answer' do
+  #     expect(game_w_questions.answer_current_question!('d')).to eq(true)
+  #     expect(game_w_questions.status).to eq(:in_progress)
+  #   end
+
+  #   it 'test incorrect answer' do
+  #     expect(game_w_questions.answer_current_question!('c')).to eq(false)
+  #     expect(game_w_questions.status).to eq(:fail)
+  #   end
+
+  #   context 'test last answer' do 
+  #     let!(:level_max) { Question::QUESTION_LEVELS.max }
+
+  #     it 'correct answer' do
+  #       game_w_questions.current_level = level_max
+  #       expect(game_w_questions.answer_current_question!('d')).to eq(true)
+  #       expect(game_w_questions.current_level).to eq(level_max + 1)
+  #       expect(game_w_questions.status).to eq(:won)
+  #     end
+
+  #     it 'incorrect answer' do
+  #       game_w_questions.current_level = level_max
+  #       expect(game_w_questions.answer_current_question!('a')).to eq(false)
+  #       expect(game_w_questions.status).to eq(:fail)
+  #     end
+  #   end
+
+  #   it 'test answer time is over' do
+  #     game_w_questions.created_at = 1.hour.ago
+  #     expect(game_w_questions.answer_current_question!('d')).to eq(false)
+  #     expect(game_w_questions.status).to eq(:timeout)
+  #   end
+  # end
+
+  describe '#answer_current_question!' do
+    before { game_w_questions.answer_current_question!(answer_key) }
+    let!(:answer_key) { game_w_questions.current_game_question.correct_answer_key }
+
+    context 'when answer is correct' do
+      let!(:level) { game_w_questions.current_level }
+
+      it 'return current level' do
+        expect(game_w_questions.current_level).to eq(1)
+      end
+
+      it 'not finished' do
+        expect(game_w_questions.finished?).to eq(false)
+      end
+
+      it 'return status - in_progress' do
+        expect(game_w_questions.status).to eq(:in_progress)
+      end
     end
 
-    it 'test incorrect answer' do
-      expect(game_w_questions.answer_current_question!('c')).to eq(false)
-      expect(game_w_questions.status).to eq(:fail)
+    context 'and question is last' do
+      before do
+        game_w_questions.current_level = Question::QUESTION_LEVELS.max
+        game_w_questions.answer_current_question!(answer_key)
+      end
+      
+      it 'finished' do
+        expect(game_w_questions.finished?).to eq(true)
+      end
+
+      it 'return status - won' do
+        expect(game_w_questions.status).to eq(:won)
+      end
     end
 
-    it 'test last correct answer' do
-      game_w_questions.current_level = Question::QUESTION_LEVELS.max
-      expect(game_w_questions.answer_current_question!('d')).to eq(true)
-      expect(game_w_questions.current_level).to eq(Question::QUESTION_LEVELS.max + 1)
-      expect(game_w_questions.status).to eq(:won)
+    context 'when answer incorrect' do
+      let!(:answer_key) { game_w_questions.answer_current_question!('a') }
+
+      it 'finished' do
+        expect(game_w_questions.finished?).to eq(true)
+      end
+
+      it 'return status - fail' do
+        expect(game_w_questions.status).to eq(:fail)
+      end
     end
 
-    it 'test last incorrect answer' do
-      game_w_questions.current_level = Question::QUESTION_LEVELS.max
-      expect(game_w_questions.answer_current_question!('a')).to eq(false)
-      expect(game_w_questions.status).to eq(:fail)
-    end
+    context 'when answer time is over' do
+      before do
+        game_w_questions.created_at = 1.hour.ago
+        game_w_questions.answer_current_question!(answer_key)
+      end
 
-    it 'test answer time is over' do
-      game_w_questions.created_at = 1.hour.ago
-      expect(game_w_questions.answer_current_question!('d')).to eq(false)
-      expect(game_w_questions.status).to eq(:timeout)
+      it 'finished' do
+        expect(game_w_questions.finished?).to eq(true)
+      end
+
+      it 'return status - timeout' do
+        expect(game_w_questions.status).to eq(:timeout)
+      end
     end
   end
 end
