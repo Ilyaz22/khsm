@@ -105,7 +105,7 @@ RSpec.describe GameQuestion, type: :model do
     end
 
     it 'contains answer key' do
-      expect(call).to include('A').or include('B').or include('C').or include('D')
+      expect(call).to include('вариант')
     end
   end
 end

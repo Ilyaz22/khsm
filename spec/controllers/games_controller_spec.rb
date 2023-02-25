@@ -217,8 +217,10 @@ RSpec.describe GamesController, type: :controller do
   end
 
   describe '#help' do
+    let(:game) { assigns(:game) }
+
     context 'when anonim' do
-      before { put :help, id: game_w_questions.id }
+      before { put :help, id: game_w_questions.id, help_type: :fifty_fifty }
 
       it 'return status is not 200' do
         expect(response.status).not_to eq(200)
@@ -234,35 +236,78 @@ RSpec.describe GamesController, type: :controller do
     end
 
     context 'when authorized user' do
-      before do
-        sign_in user
-        put :help, id: game_w_questions.id, help_type: :fifty_fifty
+      before { sign_in user }
+
+      context 'and used fifty_fifty' do
+        before { put :help, id: game_w_questions.id, help_type: :fifty_fifty }
+
+        it 'game not finished' do
+          expect(game.finished?).to be false
+        end
+
+        it 'redirect to game path' do
+          expect(response).to redirect_to(game_path(game))
+        end
+
+        it 'fifty_fifty_used' do
+          expect(game.fifty_fifty_used).to be true
+        end
+
+        it 'fifty_fifty return 2 answers' do
+          expect(game.current_game_question.help_hash[:fifty_fifty].size).to eq(2)
+        end
+
+        it 'fifty_fifty return an array' do
+          expect(game.current_game_question.help_hash[:fifty_fifty]).to be_an(Array)
+        end
+
+        it 'contains answer key' do
+          expect(game.current_game_question.help_hash[:fifty_fifty]).to include(game_w_questions.current_game_question.correct_answer_key)
+        end
       end
 
-      let(:game) { assigns(:game) }
+      context 'and used audience_help' do
+        before { put :help, id: game_w_questions.id, help_type: :audience_help }
 
-      it 'game not finished' do
-        expect(game.finished?).to be false
+        it 'game not finished' do
+          expect(game.finished?).to be false
+        end
+
+        it 'audience_help_used' do
+          expect(game.audience_help_used).to be true
+        end
+
+        it 'help hash includes audience help' do
+          expect(game.current_game_question.help_hash[:audience_help]).to be
+        end
+
+        it 'contains correct keys' do
+          expect(game.current_game_question.help_hash[:audience_help].keys).to contain_exactly('a', 'b', 'c', 'd')
+        end
+
+        it 'redirects to game path' do
+          expect(response).to redirect_to(game_path(game))
+        end
       end
 
-      it 'redirect to game path' do
-        expect(response).to redirect_to(game_path(game))
-      end
+      context 'add used friend call' do
+        before { put :help, id: game_w_questions.id, help_type: :friend_call }
 
-      it 'fifty_fifty_used' do
-        expect(game.fifty_fifty_used).to be true
-      end
+        it 'game not finished' do
+          expect(game.finished?).to be false
+        end
 
-      it 'fifty_fifty return 2 answers' do
-        expect(game.current_game_question.help_hash[:fifty_fifty].size).to eq(2)
-      end
+        it 'friend_call_used' do
+          expect(game.friend_call_used).to be true
+        end
 
-      it 'fifty_fifty return an array' do
-        expect(game.current_game_question.help_hash[:fifty_fifty]).to be_an(Array)
-      end
+        it 'help hash includes friend_call' do
+          expect(game.current_game_question.help_hash[:friend_call]).to be
+        end
 
-      it 'contains answer key' do
-        expect(game.current_game_question.help_hash[:fifty_fifty]).to include(game_w_questions.current_game_question.correct_answer_key)
+        it 'redirect to game path' do
+          expect(response).to redirect_to(game_path(game))
+        end
       end
     end
   end
