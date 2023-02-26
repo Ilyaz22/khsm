@@ -3,11 +3,11 @@ require 'rails_helper'
 describe 'users/show.html.erb', type: :view do
   before do
     assign(:user, user)
-    assign(:games, [FactoryGirl.build(:game)])
+    assign(:games, [build(:game)])
     stub_template 'users/_game.html.erb' => 'template'
   end
 
-  let(:user) { FactoryGirl.create(:user, name: 'Миша') }
+  let(:user) { create(:user, name: 'Миша') }
 
   context 'when your page' do
     before do 

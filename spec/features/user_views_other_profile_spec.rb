@@ -1,29 +1,29 @@
 require 'rails_helper'
 
 RSpec.feature 'user views other profile', type: :feature do
-  let!(:first_user) { FactoryGirl.create(:user, name: 'Миша') }
-  let(:second_user) { FactoryGirl.create(:user) }
+  let!(:first_user) { create(:user, name: 'Миша') }
+  let(:second_user) { create(:user) }
   let!(:game) do
-    FactoryGirl.create(
-    :game,
-    user_id: first_user.id,
-    is_failed: false,
-    current_level: 1,
-    prize: 2000,
-    created_at: Time.parse('2023.02.26, 19:00'),
-    finished_at: Time.parse('2023.02.26, 19:10')
+    create(
+      :game,
+      user_id: first_user.id,
+      is_failed: false,
+      current_level: 4,
+      prize: 5000,
+      created_at: Time.parse('2023.02.26, 19:00'),
+      finished_at: Time.parse('2023.02.26, 19:10')
     )
   end
 
   let!(:another_game) do
-    FactoryGirl.create(
-    :game,
-    user_id: first_user.id,
-    is_failed: true,
-    current_level: 5,
-    prize: 22000,
-    created_at: Time.parse('2023.02.26, 23:00'),
-    finished_at: Time.parse('2023.02.26, 23:22')
+    create(
+      :game,
+      user_id: first_user.id,
+      is_failed: true,
+      current_level: 8,
+      prize: 22000,
+      created_at: Time.parse('2023.02.26, 23:00'),
+      finished_at: Time.parse('2023.02.26, 23:22')
     )
   end
 
@@ -39,9 +39,9 @@ RSpec.feature 'user views other profile', type: :feature do
     expect(page).to have_content('26 февр., 23:00')
     expect(page).not_to have_content('Сменить имя и пароль')
     expect(page).to have_content('22 000 ₽')
-    expect(page).to have_content('2 000 ₽')
+    expect(page).to have_content('5 000 ₽')
     expect(page).to have_content('50/50')
-    expect(page).to have_content('1')
-    expect(page).to have_content('5')
+    expect(page).to have_content('4')
+    expect(page).to have_content('8')
   end
 end

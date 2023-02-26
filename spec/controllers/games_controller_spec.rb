@@ -11,11 +11,11 @@ require 'support/my_spec_helper' # наш собственный класс с �
 #
 RSpec.describe GamesController, type: :controller do
   # обычный пользователь
-  let(:user) { FactoryGirl.create(:user) }
+  let(:user) { create(:user) }
   # админ
-  let(:admin) { FactoryGirl.create(:user, is_admin: true) }
+  let(:admin) { create(:user, is_admin: true) }
   # игра с прописанными игровыми вопросами
-  let(:game_w_questions) { FactoryGirl.create(:game_with_questions, user: user) }
+  let(:game_w_questions) { create(:game_with_questions, user: user) }
 
   describe '#show' do
     context 'when anonim' do
@@ -62,7 +62,7 @@ RSpec.describe GamesController, type: :controller do
     # проверка, что пользовтеля посылают из чужой игры
     context 'new game' do
       # создаем новую игру, юзер не прописан, будет создан фабрикой новый
-      let!(:new_game) { FactoryGirl.create(:game_with_questions) }
+      let!(:new_game) { create(:game_with_questions) }
       # пробуем зайти на эту игру текущим залогиненным user
       before { get :show, id: new_game.id }
 
