@@ -33,13 +33,15 @@ RSpec.feature 'user views other profile', type: :feature do
     visit user_path(first_user)
 
     expect(page).to have_content('Миша')
-    expect(page).not_to have_content('Сменить имя и пароль')
     expect(page).to have_content('проигрыш')
-    expect(page).to have_content('22 000 ₽')
-    expect(page).to have_content('1')
     expect(page).to have_content('деньги')
-    expect(page).to have_content('2 000 ₽')
-    expect(page).to have_content('5')
     expect(page).to have_content('26 февр., 19:00')
+    expect(page).to have_content('26 февр., 23:00')
+    expect(page).not_to have_content('Сменить имя и пароль')
+    expect(page).to have_content('22 000 ₽')
+    expect(page).to have_content('2 000 ₽')
+    expect(page).to have_content('50/50')
+    expect(page).to have_content('1')
+    expect(page).to have_content('5')
   end
 end
